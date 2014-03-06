@@ -18,14 +18,20 @@
  */
 package models.api.results;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import lib.Field;
 import lib.timeranges.TimeRange;
 import models.FieldMapper;
+import models.SearchSort;
 import models.api.responses.MessageSummaryResponse;
 import models.api.responses.SearchResultResponse;
+import play.libs.Json;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SearchResult {
 	
@@ -125,4 +131,71 @@ public class SearchResult {
         return error;
     }
 
+    // a json representation to render into a template for knockout.js
+    // this could maybe a helper class instead of an instance method
+    public String asJSONString(Set<String> preSelectedFields, SearchSort searchSort, int page) {
+        final ObjectNode object = Json.newObject();
+        // metadata
+        object.put("originalQuery", getOriginalQuery());
+        object.put("originalTimeRange", getTimeRange().toString());
+        object.put("tookMs", getTookMs());
+        object.put("totalResultCount", getTotalResultCount());
+        object.put("builtQuery", getBuiltQuery());
+        object.put("page", page);
+
+        // fields on this page
+        final ArrayNode pageFields = object.putArray("pageFields");
+        // synthetic timestamp field
+        final Field timestamp = new Field("timestamp");
+        final ObjectNode tsField = Json.newObject();
+        tsField.put("hash", timestamp.getHash());
+        tsField.put("name", timestamp.getName());
+        tsField.put("selected", true);
+        final boolean sorted = searchSort.getField().equals(timestamp.getName());
+        tsField.put("sorted", sorted);
+        tsField.put("sortDirection", sorted ? searchSort.getDirection().toString().toLowerCase() : null);
+        pageFields.add(tsField);
+
+        for (Field field : getPageFields()) {
+            final ObjectNode fieldObject = Json.newObject();
+            fieldObject.put("hash", field.getHash());
+            fieldObject.put("name", field.getName());
+            fieldObject.put("selected", preSelectedFields.contains(field.getName()));
+            final boolean fieldSorted = searchSort.getField().equals(field.getName());
+            fieldObject.put("sorted", fieldSorted);
+            fieldObject.put("sortDirection", fieldSorted ? searchSort.getDirection().toString().toLowerCase() : null);
+            pageFields.add(fieldObject);
+        }
+
+        final ArrayNode messages = object.putArray("messages");
+        for (MessageResult messageResult : getMessages()) {
+            final ObjectNode message = Json.newObject();
+            message.put("id", messageResult.getId());
+            message.put("index", messageResult.getIndex());
+            message.put("timestamp", messageResult.getTimestamp().toString());
+
+            final ArrayNode stream_ids = message.putArray("stream_ids");
+            for (String streamId : messageResult.getStreamIds()) {
+                stream_ids.add(streamId);
+            }
+            final ArrayNode fieldValues = message.putArray("fields");
+
+            // add timestamp field
+            final ObjectNode ts = Json.newObject();
+            ts.put("hash", timestamp.getHash());
+            ts.put("value", messageResult.getTimestamp().toString());
+            fieldValues.add(ts);
+
+            for (Map.Entry<String, Object> fieldEntry : messageResult.getFormattedFields().entrySet()) {
+                final String fieldNameHash = Field.getDigest(fieldEntry.getKey());
+                final ObjectNode value = Json.newObject();
+                value.put("hash", fieldNameHash);
+                value.put("value", fieldEntry.getValue().toString());
+                fieldValues.add(value);
+            }
+            messages.add(message);
+        }
+
+        return object.toString();
+    }
 }

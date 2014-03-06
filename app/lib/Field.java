@@ -34,21 +34,24 @@ public class Field {
 			"source",
 			"message"
 	);
-	
-	public Field(String field) {
+
+    public Field(String field) {
 		this.name = field;
-		
-		try {
-			/* 
-			 * Using MD5 instead of Base64 for now because the = chars in Base64 fuck up HTML attributes.
-			 * Possibly replace with something faster but I don't really care for the hand full of field names.
-			 */
-			MessageDigest d = MessageDigest.getInstance("MD5");
-			this.hash = new String(Hex.encodeHex(d.digest(field.getBytes())));
-		} catch (NoSuchAlgorithmException e) { throw new RuntimeException(e); /* ... well ... */ }
-	}
-	
-	public String getName() {
+        this.hash = getDigest(field);
+    }
+
+    public static String getDigest(String field) {
+        try {
+            /*
+             * Using MD5 instead of Base64 for now because the = chars in Base64 fuck up HTML attributes.
+             * Possibly replace with something faster but I don't really care for the hand full of field names.
+             */
+            MessageDigest d = MessageDigest.getInstance("MD5");
+            return new String(Hex.encodeHex(d.digest(field.getBytes())));
+        } catch (NoSuchAlgorithmException e) { throw new RuntimeException(e); /* ... well ... */ }
+    }
+
+    public String getName() {
 		return name;
 	}
 	

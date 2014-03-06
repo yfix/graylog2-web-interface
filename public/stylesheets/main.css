@@ -1735,17 +1735,19 @@ form.edit-dashboard-form {
     text-decoration: none;
 }
 
-.messages th a:hover {
-    text-decoration: none;
+.messages th .choose-sort-order {
+    color: #8c8e86;
+    display: none;
+}
+
+.messages th:hover .choose-sort-order {
+    display: inline;
+    cursor: pointer;
 }
 
 .messages th .sort-order-asc {
     position: relative;
     top: -1px;
-}
-
-.messages th .choose-sort-order {
-    color: #8c8e86;
 }
 
 .add-alert-type {
