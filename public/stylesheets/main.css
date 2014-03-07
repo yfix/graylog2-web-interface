@@ -1740,7 +1740,8 @@ form.edit-dashboard-form {
     display: none;
 }
 
-.messages th:hover .choose-sort-order {
+.messages th:hover .choose-sort-order,
+.messages th.sort-hovered .choose-sort-order {
     display: inline;
     cursor: pointer;
 }

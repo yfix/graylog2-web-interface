@@ -334,7 +334,7 @@
     </thead>
     <tbody data-bind="foreach: messages">
         <tr data-bind="foreach: selectedFields, attr: {'data-message-id': id}">
-            <td class="messages-message" data-bind="attr: {id: 'result-td-' + field().hash}, text: value"></td>
+            <td class="messages-message" data-bind="attr: {id: 'result-td-' + field().hash}, text: value, event: { mouseover: showSort, mouseout: hideSort }"></td>
         </tr>
     </tbody>
 </table>

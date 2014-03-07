@@ -71,6 +71,17 @@ $(document).ready(function() {
     var MessageField = function(field, value) {
         this.field = ko.observable(field);
         this.value = ko.observable(value);
+
+        this.showSort = function(field, event) {
+            var target = event.srcElement;
+            var th = $(target).closest('table').find('th').eq($(target).index());
+            th.addClass("sort-hovered");
+        };
+        this.hideSort = function(field, event) {
+            var target = event.srcElement;
+            var th = $(target).closest('table').find('th').eq($(target).index());
+            th.removeClass("sort-hovered");
+        };
     };
 
     var SearchResultModel = function(data) {
