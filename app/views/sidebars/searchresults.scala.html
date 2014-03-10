@@ -9,33 +9,30 @@
 
 
 	Found
-    <span class="number-format" data-format="0,0">@searchResult.getTotalResultCount</span>
+    <span class="number-format" data-format="0,0" data-bind="text: totalResultCount"></span>
     messages in
-    <span class="number-format" data-format="0,0">@searchResult.getTookMs</span>ms,
+    <span class="number-format" data-format="0,0" data-bind="momentText: tookMs, duration"></span>,
     searched in
 
-    <a href="#used-indices" role="button" data-toggle="modal" data-backdrop="true">
-        @searchResult.getUsedIndices.size()
-        @if(searchResult.getUsedIndices.size() == 1) {index} else {indices}</a>.
+    <a href="#used-indices" role="button" data-toggle="modal" data-backdrop="true" data-bind="text: indicesText"></a>.
 
 
 @if(searchResult.getTotalResultCount > 0) {
 <h3>
     Message fields
     <span class="message-result-fields-range">
-        <a href="#" class="page" style="font-weight: bold;">of current page</a>
+        <a href="#" style="font-weight: bold;" data-bind="style:{fontWeight: fieldListPage() === 'page' ? 'bold' : 'normal' }, click: changeFieldListPage.bind($data, 'page')"> of current page</a>
         /
-        <a href="#" class="all">all</a>
+        <a href="#" data-bind="style:{fontWeight: fieldListPage() !== 'page' ? 'bold' : 'normal'}, click: changeFieldListPage.bind($data, 'all')">all</a>
     </span>
 </h3>
 
 <div>
-    <h4>Quick select fields</h4>
     <div class="message-result-fields-set pull-left">
         <div class="btn-group">
-            <button class="btn btn-mini fields-set-chooser" data-fields-set="default">Default</button>
-            <button class="btn btn-mini fields-set-chooser" data-fields-set="none">None</button>
-            <button class="btn btn-mini fields-set-chooser" data-fields-set="all">All</button>
+            <button class="btn btn-mini fields-set-chooser" data-fields-set="default" data-bind="click: changeFieldSelection.bind($data, 'default')">Default</button>
+            <button class="btn btn-mini fields-set-chooser" data-fields-set="none" data-bind="click: changeFieldSelection.bind($data, 'none')">None</button>
+            <button class="btn btn-mini fields-set-chooser" data-fields-set="all" data-bind="click: changeFieldSelection.bind($data, 'all')">All</button>
         </div>
     </div>
     <div class="message-result-fields-search input-prepend">
@@ -46,18 +43,110 @@
 <div class="nano">
     <div class="content">
         <div class="inner-content">
-            <ul class="search-result-fields" data-selected="page">
-                @for(f <- searchResult.getPageFields.sortBy(_.getName)) {
-                    <li class="search-result-field-type page">
-                        @views.html.sidebars.partials.search_result_field.render(f, streamId, selectedFields)
-                    </li>
-                }
+            <script type="text/html" id="quickvalues">
+                <div class="quickvalues alpha80" data-autorefresh="true">
+                    <i class="icon icon-play arrow"></i>
 
-                @for(f <- searchResult.getAllFields.sortBy(_.getName)) {
-                    <li class="search-result-field-type all" style="display: none;">
-                        @views.html.sidebars.partials.search_result_field.render(f, streamId, selectedFields)
-                    </li>
-                }
+                    <div class="inner">
+                        <span class="pull-right icons">
+                            <i class="icon icon-refresh quickvalues-refresh" title="Refresh"></i>
+
+                            <!-- add to dashboard partial here -->
+
+                            <i class="icon icon-play-circle active quickvalues-autorefresh" title="Automatic refresh"></i>
+                                <!--<i class="icon icon-download-alt quickvalues-export" title="Download"></i>-->
+                            <i class="icon icon-remove quickvalues-close" title="Close"></i>
+                        </span>
+
+                        <h2>Quick value breakdown of <em data-bind="text: name"></em></h2>
+
+                        <div class="term-counts">
+                            Max. 50 terms. <em class="terms-total"></em> messages with field.
+                            (<em class="terms-other"></em> more, <em class="terms-missing"></em> without field.)
+                        </div>
+
+                        <div class="nano">
+                            <div class="content">
+                                <table class="terms table table-condensed">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 12px;">&nbsp;</th>
+                                            <th style="width: 300px;">Value</th>
+                                            <th style="width: 50px;">%</th>
+                                            <th>Count</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="progress terms-distribution"></div>
+                </div>
+            </script>
+            <script type="text/html" id="statistics">
+                <div class="statistics" style=>
+                    <div class="spinner">
+                        <h4><i class='icon-refresh icon-spin'></i> &nbsp;Loading statistics.</h4>
+                    </div>
+
+                    <div class='wrong-type' style="display: none;">
+                        <i class="icon icon-info"></i>
+                        Statistical analysis is only available for numeric field types.
+                    </div>
+
+                    <div class="analyzer-content">
+                        <dl>
+                            <dt>Total messages:</dt>
+                            <dd class="count"></dd>
+
+                            <dt>Mean:</dt>
+                            <dd class="mean"></dd>
+
+                            <dt>Std. deviation:</dt>
+                            <dd class="stddev"></dd>
+
+                            <dt>Minimum:</dt>
+                            <dd class="min"></dd>
+
+                            <dt>Maximum:</dt>
+                            <dd class="max"></dd>
+
+                            <dt>Sum:</dt>
+                            <dd class="sum"></dd>
+
+                            <dt>Variance:</dt>
+                            <dd class="variance"></dd>
+
+                            <dt>Sum of squares:</dt>
+                            <dd class="squares"></dd>
+                        </dl>
+                    </div>
+                </div>
+            </script>
+
+            <ul class="search-result-fields" data-selected="page" data-bind="foreach: fieldList">
+                <li class="search-result-field-type">
+                    <i class="icon icon-cog open-analyze-field" data-bind="click: toggleAnalysesFields"></i>
+                        &nbsp;
+
+                    <input type="checkbox"
+                           class="field-selector"
+                           data-bind="attr: {id: 'field-selector-'+hash(), 'data-field-hash': hash, 'data-field-name':name}, checked: selected" />
+                    <label class="field-name" data-bind="attr: {for: 'field-selector-' + hash()}, text: name"></label>
+
+                    <div class="analyze-field" data-bind="attr: { 'data-stream-id': $root.streamId}">
+                        <a href="#" class="btn btn-info btn-mini" data-bind="click: toggleFieldStatistics">Statistics</a>
+
+                        <a href="#" class="btn btn-info btn-mini" data-bind="click: toggleQuickValues">Quick values</a>
+
+                        <a href="#" class="btn btn-info btn-mini" data-bind="click: generateChart">Generate chart</a>
+                    </div>
+
+                    <div data-bind="template: {name: 'statistics', if: statisticsVisible}"></div>
+                    <div data-bind="template: {name: 'quickvalues', if: quickvaluesVisible}"></div>
+                </li>
             </ul>
         </div>
     </div>
@@ -68,17 +157,15 @@
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">x</button>
         <h2>Used indices</h2>
-        Graylog2 is intelligently selecting the indices it needs to search upon based on the timeframe you selected.
+        Graylog2 is intelligently selecting the <a href="/system/indices">indices</a> it needs to search upon based on the timeframe you selected.
         This list of indices is mainly useful for debugging purposes.
     </div>
 
     <div class="modal-body">
         <h4>Indices used for this search:</h4>
 
-        <ul class="index-list">
-        @for(index <- searchResult.getUsedIndices.sorted) {
-            <li>@index</li>
-        }
+        <ul class="index-list" data-bind="foreach: indices">
+            <li data-bind="text: $data"></li>
         </ul>
     </div>
 

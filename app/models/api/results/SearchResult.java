@@ -142,6 +142,10 @@ public class SearchResult {
         object.put("totalResultCount", getTotalResultCount());
         object.put("builtQuery", getBuiltQuery());
         object.put("page", page);
+        final ArrayNode indices = object.putArray("indices");
+        for (String index : getUsedIndices()) {
+            indices.add(index);
+        }
 
         // fields on this page
         final ArrayNode pageFields = object.putArray("pageFields");
@@ -165,6 +169,19 @@ public class SearchResult {
             fieldObject.put("sorted", fieldSorted);
             fieldObject.put("sortDirection", fieldSorted ? searchSort.getDirection().toString().toLowerCase() : null);
             pageFields.add(fieldObject);
+        }
+
+        final ArrayNode allFields = object.putArray("allFields");
+        allFields.add(tsField);
+        for (Field field : getAllFields()) {
+            final ObjectNode fieldObject = Json.newObject();
+            fieldObject.put("hash", field.getHash());
+            fieldObject.put("name", field.getName());
+            fieldObject.put("selected", preSelectedFields.contains(field.getName()));
+            final boolean fieldSorted = searchSort.getField().equals(field.getName());
+            fieldObject.put("sorted", fieldSorted);
+            fieldObject.put("sortDirection", fieldSorted ? searchSort.getDirection().toString().toLowerCase() : null);
+            allFields.add(fieldObject);
         }
 
         final ArrayNode messages = object.putArray("messages");

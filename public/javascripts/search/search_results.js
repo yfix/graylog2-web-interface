@@ -28,6 +28,19 @@ $(document).ready(function() {
 
         this.sorted = ko.observable(sorted);
         this.sortDirection = ko.observable(sortDirection);
+
+        this.statisticsVisible = ko.observable(false);
+        this.quickvaluesVisible = ko.observable(false);
+
+        this.toggleFieldStatistics = function() {
+            this.statisticsVisible(!this.statisticsVisible());
+        };
+        this.toggleQuickValues = function() {
+            this.quickvaluesVisible(!this.quickvaluesVisible());
+        };
+        this.generateChart = function() {
+            console.log("implement me");
+        };
     };
 
     /**
@@ -46,6 +59,27 @@ $(document).ready(function() {
             if (field.sortDirection() !== direction) {
                 $(element).addClass('choose-sort-order');
             }
+        }
+    };
+
+    ko.bindingHandlers.momentText = {
+        init: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+        },
+        update: function(element, valueAccessor, allBindings, viewModel, bindingContext) {
+            var time = ko.unwrap(valueAccessor());
+            var ts;
+            if (allBindings.has('duration')) {
+                ts = moment.duration(time);
+            } else {
+                ts = moment(time);
+            }
+            var stringValue = "";
+            if (allBindings.has('humanize')) {
+                stringValue = ts.humanize();
+            } else {
+                stringValue = ts.asMilliseconds() + " ms";
+            }
+            $(element).text(stringValue);
         }
     };
 
@@ -91,10 +125,13 @@ $(document).ready(function() {
          */
         var fieldHashToField = {};
 
-        var makePageFieldArray = function (fieldArray) {
+        var makeFieldArray = function (fieldArray) {
             return ko.utils.arrayMap(fieldArray, function(elem, idx) {
-                var field = new Field(elem.name, elem.hash, elem.selected, idx+1, elem.sorted, elem.sortDirection);
-                fieldHashToField[elem.hash] = field;
+                var field = fieldHashToField[elem.hash];
+                if (field === undefined) {
+                    field = new Field(elem.name, elem.hash, elem.selected, idx+1, elem.sorted, elem.sortDirection);
+                    fieldHashToField[elem.hash] = field;
+                }
                 return field;
             });
         };
@@ -105,7 +142,14 @@ $(document).ready(function() {
         this.totalResultCount = ko.observable(data.totalResultCount);
         this.page = ko.observable(data.page);
         this.builtQuery = ko.observable(data.builtQuery);
-        this.pageFields = ko.observableArray(makePageFieldArray(data.pageFields));
+        this.allFields = ko.observableArray(makeFieldArray(data.allFields));
+        this.pageFields = ko.observableArray(makeFieldArray(data.pageFields));
+        this.indices = ko.observableArray(data.indices);
+
+        this.indicesText = ko.computed(function() {
+            var length = self.indices().length;
+            return length + " " + (length > 1 ? "indices" : "index");
+        });
 
         var makeMessageDataMatrix = function(messages) {
             return ko.utils.arrayMap(messages, function(msg) {
@@ -124,6 +168,43 @@ $(document).ready(function() {
                 return field.selected();
             });
         });
+        this.fieldListPage = ko.observable("page");
+        this.changeFieldListPage = function(page) {
+            self.fieldListPage(page);
+        }
+        this.fieldList = ko.computed(function() {
+            var listPage = self.fieldListPage();
+            if (listPage === "page") {
+                return self.pageFields();
+            }
+            return self.allFields();
+        });
+
+        this.changeFieldSelection = function(fieldsSet) {
+            ko.utils.arrayForEach(self.fieldList(), function(field) {
+                // do not touch timestamp
+                if (field.name() === "timestamp") { return; }
+
+                switch(fieldsSet) {
+                    case "none":
+                        field.selected(false);
+                        break;
+                    case "default":
+                        switch (field.name()) {
+                            case "message": /* fallthrough */
+                            case "source":
+                                field.selected(true);
+                                break;
+                            default:
+                                field.selected(false);
+                        }
+                        break;
+                    case "all":
+                        field.selected(true);
+                        break;
+                }
+            });
+        };
 
         this.sortLink = function(direction, field) {
             var uri = new URI();
@@ -138,8 +219,8 @@ $(document).ready(function() {
 
     var model = new SearchResultModel(initialSearchResultData);
 
-    // bind the model to both main content and side bar (they don't necessarily have the same ancestor)
-    $(".search-result-main-container, .search-result-sidebar-container").each(function(){
+    // the sidebar has the same ancestor
+    $(".search-result-main-container").each(function(){
         ko.applyBindings(model, $(this).elem);
     });
 

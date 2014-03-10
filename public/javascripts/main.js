@@ -160,7 +160,7 @@ $(document).ready(function() {
         $(this).attr("href", uri.toString());
     });
 
-    $(".fields-set-chooser").click(function(e) {
+    /* $(".fields-set-chooser").click(function(e) {
         e.preventDefault();
         var setName = $(this).data('fields-set');
         var fields = searchViewState.getFields();
@@ -212,6 +212,7 @@ $(document).ready(function() {
             default: console.log("Error, unknown fields set " + setName);
         }
     });
+    */
 
     // Call resizedWindow() only at end of resize event so we do not trigger all the time while resizing.
     var resizeMutex;
