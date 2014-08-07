@@ -77,8 +77,6 @@
 
 @main("Search results", sidebars.searchresults(searchResult, streamId, selectedFields), query, currentUser) {
 
-    <h1 id="react-search-result">WILL BE REPLACED BY REACT RENDERING RESULTS</h1>
-
 <span id="original-search-query" style="display: none;">@searchResult.getOriginalQuery</span>
 <span id="original-search-timerange" style="display: none;">@searchResult.getTimeRange</span>
 
@@ -289,6 +287,7 @@
     </div>
 </div>
 
+        <!-- Obsoleted by react compoenent -->
 <div id="built-query" class="modal hide fade" tabindex="-1" role="dialog">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal">x</button>
@@ -305,6 +304,9 @@
         </script>
     </div>
 </div>
+        <!-- End of obsoleted block -->
+
+<h1 id="react-search-result">WILL BE REPLACED BY REACT RENDERING RESULTS</h1>
 
 <table class="table table-condensed table-hover table-striped messages">
 	<thead>

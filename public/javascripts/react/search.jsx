@@ -1,33 +1,81 @@
 /** @jsx React.DOM */
 $(document).ready(function () {
 
+    var ColumnSorter = React.createClass({
+        sortAscending: function() {
+            console.error("Ascending sort not implemented, yet");
+            console.error("Should really sort column " + this.props.fieldName + " on page " + this.props.page);
+        },
+        sortDescending: function() {
+            console.error("Descending sort not implemented, yet");
+            console.error("Should really sort column " + this.props.fieldName + " on page " + this.props.page);
+        },
+        render: function() {
+            return (<span>
+                <a onClick={this.sortAscending}>
+                    <i className="icon icon-sort-by-attributes-alt icon-flip-vertical sort-order sort-order-asc choose-sort-order" title="Sort ascending"></i>
+                </a>
+                <a onClick={this.sortDescending}>
+                    <i className="icon icon-sort-by-attributes-alt sort-order choose-sort-order sort-order-desc" title="Sort descending"></i>
+                </a>
+            </span>);
+        }
+    });
+
     var SearchResult = React.createClass({
         handleResultClicked: function (result, e) {
-            console.log("Search result clicked");
-            console.log("Event: ", e);
-            console.log("Result: ", result);
+            console.error("Selection of result not implemented, yet");
+            console.error("Should display details of ", result);
         },
+        // TODO: Display in right order and filter out fields that are not selected
         render: function () {
             var result = this.props.message.message;
-            var that = this;
             return <tr onClick={this.handleResultClicked.bind(this, result)}>{Object.keys(result).map(function (field, index) {
                 return <td key={"result-field-" + index}>{result[field]}</td>
             })}</tr>;
         }
     });
 
+    var SearchResultHeader = React.createClass({
+        render: function() {
+            var style = null;
+            if (this.props.width) {
+                style = {
+                    width: this.props.width
+                };
+            }
+            return (<th style={style}>{this.props.title} <ColumnSorter fieldName={this.props.fieldName} search={this.props.search} page={this.props.page}/></th>);
+        }
+    });
+
     var SearchResults = React.createClass({
         getInitialState: function () {
-            return {results: dummyData};
+            var defaultFields = ['timestamp', 'source', 'message'];
+            return {search: dummyData, page: 1, defaultFields: defaultFields, selectedFields: defaultFields.concat([/* XXX: just because */ 'http_method'])};
         },
         render: function () {
+            var timestampHeader = <SearchResultHeader title="TimeStamp" width="135px" fieldName="timestamp" search={this.state.search} page={this.state.page}/>;
+            var sourceHeader = <SearchResultHeader title="Source" width="180px" fieldName="source" search={this.state.search} page={this.state.page}/>; // TODO: Only display when in selected fields and actually present in search result
+            var messageHeader = <SearchResultHeader title="Message" width="180px" fieldName="message" search={this.state.search} page={this.state.page}/>; // TODO: Only display when in selected fields and actually present in search result
+
             return (<div>
                 <h1>Results rendered by react</h1>
-                <table>
-                    <thead></thead>
-                    <tbody>{this.state.results.messages.map(function (message, index) {
-                        return <SearchResult key={"result-" + index} message={message}/>;
-                    })}
+                <table className="table table-condensed table-hover table-striped messages">
+                    <thead>
+                    {timestampHeader}
+                    {sourceHeader}
+                    {messageHeader}
+                    {
+                        this.state.selectedFields.filter(function(field) {
+                            return this.state.defaultFields.indexOf(field) === -1;
+                        }, this).map(function(field, index) {
+                            return <SearchResultHeader key={"result-header-" + index} title={field} fieldName={field} search={this.state.search} page={this.state.page}/>
+                        }, this)
+                    }
+                    </thead>
+                    <tbody>{this.state.search.messages.map(function (message, index) {
+                        return <SearchResult key={"result-" + index} message={message} selectedFields={this.state.selectedFields} />;
+                    }, this)}
                     </tbody>
                 </table>
             </div>);
@@ -48,6 +96,7 @@ $(document).ready(function () {
                 .modal({backdrop: 'static', keyboard: false, show: false})
         },
         componentWillUnmount: function () {
+            // Olli: WTF? Copied from examples, but does it make *any* sense?
             $(this.getDOMNode()).off('hidden', this.handleHidden);
         },
         close: function () {
@@ -160,6 +209,6 @@ $(document).ready(function () {
     Array.prototype.slice.call(document.querySelectorAll('[debug]')).forEach(function (mountNode) {
         React.renderComponent(<DebugButton data={dummyData}/>, mountNode);
     });
-//    var mountNode = document.getElementById('react-search-result');
-//    if (mountNode) React.renderComponent(<SearchResults />, mountNode);
+    var mountNode = document.getElementById('react-search-result');
+    if (mountNode) React.renderComponent(<SearchResults />, mountNode);
 });
