@@ -51,9 +51,16 @@ var SearchResultHeader = React.createClass({
 
 var SearchResults = React.createClass({
     getInitialState: function () {
-        // TODO: How do we deal with constants like this?
-        var defaultFields = ['timestamp', 'source', 'message'];
-        return {search: dummyData, page: 1, defaultFields: defaultFields, selectedFields: defaultFields.concat([/* XXX: just because */ 'http_method'])};
+        return {search: dummyData, page: 1, defaultFields: SelectedFieldsStore.defaultFields, selectedFields: SelectedFieldsStore.getFields()};
+    },
+    componentDidMount: function() {
+        SelectedFieldsStore.addChangeListener(this._onChange);
+    },
+    componentWillUnmount: function() {
+        SelectedFieldsStore.removeChangeListener(this._onChange);
+    },
+    _onChange: function() {
+        this.setState({selectedFields: SelectedFieldsStore.getFields()});
     },
     render: function () {
         var timestampHeader = <SearchResultHeader title="TimeStamp" width="135px" fieldName="timestamp" search={this.state.search} page={this.state.page}/>;
