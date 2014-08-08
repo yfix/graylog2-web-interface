@@ -1,5 +1,5 @@
 // TODO: JSON data should be retrieved from web server using $.getJSON
-// TODO: timestamp format delivered by web server seems to be different that this one?! Why? How to convert?
+// TODO: timestamp format delivered by web server seems to be different that this one?! Have something like DateHelper.timestampShort here
 var dummyData = {
     "query": "*",
     "built_query": "{\"from\":0,\"size\":150,\"query\":{\"match_all\":{}},\"post_filter\":{\"range\":{\"timestamp\":{\"from\":\"2014-08-04 12:43:55.148\",\"to\":\"2014-08-04 12:48:55.148\",\"include_lower\":true,\"include_upper\":true}}},\"sort\":[{\"timestamp\":{\"order\":\"desc\"}}]}",
