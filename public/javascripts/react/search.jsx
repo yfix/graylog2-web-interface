@@ -1,4 +1,6 @@
 /** @jsx React.DOM */
+
+// TODO: Module concept and build process
 $(document).ready(function () {
 
     var ColumnSorter = React.createClass({
@@ -27,10 +29,10 @@ $(document).ready(function () {
             console.error("Selection of result not implemented, yet");
             console.error("Should display details of ", result);
         },
-        // TODO: Display in right order and filter out fields that are not selected
         render: function () {
             var result = this.props.message.message;
-            return <tr onClick={this.handleResultClicked.bind(this, result)}>{Object.keys(result).map(function (field, index) {
+            var fields = this.props.selectedFields;
+            return <tr onClick={this.handleResultClicked.bind(this, result)}>{fields.map(function (field, index) {
                 return <td key={"result-field-" + index}>{result[field]}</td>
             })}</tr>;
         }
@@ -50,6 +52,7 @@ $(document).ready(function () {
 
     var SearchResults = React.createClass({
         getInitialState: function () {
+            // TODO: How do we deal with constants like this?
             var defaultFields = ['timestamp', 'source', 'message'];
             return {search: dummyData, page: 1, defaultFields: defaultFields, selectedFields: defaultFields.concat([/* XXX: just because */ 'http_method'])};
         },
@@ -206,6 +209,7 @@ $(document).ready(function () {
     });
 
     // TODO: How to we selectively add react component into otherwise static html?
+    // Do we just have a single big react component for the relevant parts of a page?
     Array.prototype.slice.call(document.querySelectorAll('[debug]')).forEach(function (mountNode) {
         React.renderComponent(<DebugButton data={dummyData}/>, mountNode);
     });
