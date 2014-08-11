@@ -24,16 +24,26 @@ import com.google.inject.Inject;
 import controllers.AuthenticatedController;
 import org.graylog2.restclient.lib.APIException;
 import lib.SearchTools;
+import org.graylog2.restclient.lib.ApiClient;
 import org.graylog2.restclient.lib.timeranges.*;
+import org.graylog2.restclient.models.SavedSearch;
+import org.graylog2.restclient.models.SavedSearchService;
+import org.graylog2.restclient.models.SearchSort;
 import org.graylog2.restclient.models.UniversalSearch;
 import org.graylog2.restclient.models.api.responses.FieldHistogramResponse;
 import org.graylog2.restclient.models.api.responses.FieldStatsResponse;
 import org.graylog2.restclient.models.api.responses.FieldTermsResponse;
+import org.graylog2.restclient.models.api.results.DateHistogramResult;
+import org.graylog2.restclient.models.api.results.MessageResult;
+import org.graylog2.restclient.models.api.results.SearchResult;
 import play.Logger;
 import play.mvc.Result;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Lennart Koopmann <lennart@torch.sh>
@@ -42,6 +52,102 @@ public class SearchApiController extends AuthenticatedController {
 
     @Inject
     private UniversalSearch.Factory searchFactory;
+
+    @Inject
+    private SavedSearchService savedSearchService;
+
+    public Result index(String q,
+                        String rangeType,
+                        int relative,
+                        String from, String to,
+                        String keyword,
+                        String interval,
+                        int page,
+                        String savedSearchId,
+                        String sortField,
+                        String sortOrder) {
+        SearchSort sort = buildSearchSort(sortField, sortOrder);
+
+        UniversalSearch search;
+        try {
+            search = getSearch(q, null, rangeType, relative, from, to, keyword, page, sort);
+        } catch(InvalidRangeParametersException e2) {
+            return status(400, views.html.errors.error.render("Invalid range parameters provided.", e2, request()));
+        } catch(IllegalArgumentException e1) {
+            return status(400, views.html.errors.error.render("Invalid range type provided.", e1, request()));
+        }
+
+        SearchResult searchResult;
+        SavedSearch savedSearch;
+        try {
+            if(savedSearchId != null && !savedSearchId.isEmpty()) {
+                savedSearch = savedSearchService.get(savedSearchId);
+            } else {
+                savedSearch = null;
+            }
+
+            // Histogram interval.
+            if (interval == null || interval.isEmpty() || !SearchTools.isAllowedDateHistogramInterval(interval)) {
+                interval = "minute";
+            }
+
+            searchResult = search.search();
+
+            // TODO: Do it raw like this? Or create some nifty mapping?
+            List<Map<String, Object>> messages = new ArrayList<>();
+            for (MessageResult messageResult: searchResult.getMessages()) {
+                Map<String, Object> fields = messageResult.getFields();
+                messages.add(fields);
+            }
+
+            Map<String, Object> result = Maps.newHashMap();
+            result.put("took_ms", searchResult.getTookMs());
+            result.put("messages", messages);
+
+            return ok(new Gson().toJson(result)).as("application/json");
+        } catch (IOException e) {
+            return internalServerError("io exception");
+        } catch (APIException e) {
+            if (e.getHttpCode() == 400) {
+                // This usually means the field does not have a numeric type. Pass through!
+                return badRequest();
+            }
+
+            return internalServerError("api exception " + e);
+        }
+
+    }
+
+    protected UniversalSearch getSearch(String q, String filter, String rangeType, int relative,String from, String to, String keyword, int page, SearchSort order)
+            throws InvalidRangeParametersException, IllegalArgumentException {
+        if (q == null || q.trim().isEmpty()) {
+            q = "*";
+        }
+
+        // Determine timerange type.
+        TimeRange timerange = TimeRange.factory(rangeType, relative, from, to, keyword);
+
+        UniversalSearch search;
+        if (filter == null) {
+            search = searchFactory.queryWithRangePageAndOrder(q, timerange, page, order);
+        } else {
+            search = searchFactory.queryWithFilterRangePageAndOrder(q, filter, timerange, page, order);
+        }
+
+        return search;
+    }
+
+    protected SearchSort buildSearchSort(String sortField, String sortOrder) {
+        if (sortField == null || sortOrder == null || sortField.isEmpty() || sortOrder.isEmpty()) {
+            return UniversalSearch.DEFAULT_SORT;
+        }
+
+        try {
+            return new SearchSort(sortField, SearchSort.Direction.valueOf(sortOrder.toUpperCase()));
+        } catch(IllegalArgumentException e) {
+            return UniversalSearch.DEFAULT_SORT;
+        }
+    }
 
     public Result fieldStats(String q, String field, String rangeType, int relative, String from, String to, String keyword, String streamId) {
         if (q == null || q.isEmpty()) {
