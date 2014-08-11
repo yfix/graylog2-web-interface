@@ -1,5 +1,7 @@
 // from https://github.com/tmpvar/node-eventemitter
 (function(exports) {
+    'use strict';
+
     var process = { EventEmitter: function() {} };
 
     if (typeof Array.isArray !== "function"){

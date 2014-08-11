@@ -1,22 +1,22 @@
 /** @jsx React.DOM */
 
-
-
-
 var FieldSelector = React.createClass({
     // TODO: misses the code for analyzis (the cog button)
     // TODO: Cogs are not aligned with check boxes
+    // TODO: Check: is it good style to directly access fields from store? Rather have it as a state? Or pass in as prop from outside???
     _onFieldToggle: function (fieldToToggle) {
-        if (this.props.selectedFields.indexOf(fieldToToggle) === -1) {
-            this.props.selectedFields.push(fieldToToggle);
+        var selectedFields = SelectedFieldsStore.getFields();
+        if (selectedFields.indexOf(fieldToToggle) === -1) {
+            selectedFields.push(fieldToToggle);
         } else {
-            this.props.selectedFields = this.props.selectedFields.filter(function (field) {
-                return fieldToToggle === field;
+            selectedFields = selectedFields.filter(function (field) {
+                return fieldToToggle !== field;
             });
         }
-        SelectedFieldsStore.setFields(this.props.selectedFields);
+        SelectedFieldsStore.setFields(selectedFields);
     },
     render: function () {
+        var selectedFields = SelectedFieldsStore.getFields();
         return (<span>
             <i className="icon icon-cog open-analyze-field"></i>
         &nbsp;
@@ -24,8 +24,8 @@ var FieldSelector = React.createClass({
             <label className="field-name">
                 <input type="checkbox"
                 className="field-selector"
-                onChange={this._onFieldToggle}
-                checked={this.props.selectedFields.indexOf(this.props.field) !== -1 ? "checked" : null} />
+                onChange={this._onFieldToggle.bind(this, this.props.field)}
+                checked={selectedFields.indexOf(this.props.field) !== -1 ? "checked" : null} />
             &nbsp;{this.props.field}
             </label>
         </span>);
@@ -57,7 +57,7 @@ var SearchSidebar = React.createClass({
             <ul className="index-list">
             {
                 this.state.search.used_indices.sort().map(function (indexName, index) {
-                    return <li key="index-{index}">{indexName}</li>;
+                    return <li key={index}>{indexName}</li>;
                 })
                 }
             </ul>
@@ -120,8 +120,8 @@ var SearchSidebar = React.createClass({
                         {
                             this.state.search.fields.sort().map(function (field, index) {
                                 return (
-                                    <li className="search-result-field-type page">
-                                        <FieldSelector key={"field-selector-" + index} field={field} selectedFields={this.state.selectedFields}/>
+                                    <li key={index} className="search-result-field-type page">
+                                        <FieldSelector field={field}/>
                                     </li>
                                     )
                             }, this)

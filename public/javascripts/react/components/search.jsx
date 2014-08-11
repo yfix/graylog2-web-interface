@@ -63,14 +63,14 @@ var SearchResults = React.createClass({
         this.setState({selectedFields: SelectedFieldsStore.getFields()});
     },
     render: function () {
-        var timestampHeader = <SearchResultHeader title="TimeStamp" width="135px" fieldName="timestamp" search={this.state.search} page={this.state.page}/>;
-        var sourceHeader = this.state.selectedFields.indexOf("source") === -1 ? null : <SearchResultHeader title="Source" width="180px" fieldName="source" search={this.state.search} page={this.state.page}/>;
-        var messageHeader = this.state.selectedFields.indexOf("source") === -1 ? null : <SearchResultHeader title="Message" width="180px" fieldName="message" search={this.state.search} page={this.state.page}/>;
+        var timestampHeader = <SearchResultHeader key="timestamp" title="TimeStamp" width="135px" fieldName="timestamp" search={this.state.search} page={this.state.page}/>;
+        var sourceHeader = this.state.selectedFields.indexOf("source") === -1 ? null : <SearchResultHeader key="source" title="Source" width="180px" fieldName="source" search={this.state.search} page={this.state.page}/>;
+        var messageHeader = this.state.selectedFields.indexOf("message") === -1 ? null : <SearchResultHeader key="message" title="Message" width="180px" fieldName="message" search={this.state.search} page={this.state.page}/>;
 
         return (<div>
             <h1>Results rendered by react</h1>
             <table className="table table-condensed table-hover table-striped messages">
-                <thead>
+                <thead><tr>
                     {timestampHeader}
                     {sourceHeader}
                     {messageHeader}
@@ -78,12 +78,12 @@ var SearchResults = React.createClass({
                         this.state.selectedFields.filter(function (field) {
                             return this.state.defaultFields.indexOf(field) === -1;
                         }, this).map(function (field, index) {
-                            return <SearchResultHeader key={"result-header-" + index} title={field} fieldName={field} search={this.state.search} page={this.state.page}/>
+                            return <SearchResultHeader key={index} title={field} fieldName={field} search={this.state.search} page={this.state.page}/>
                         }, this)
                         }
-                </thead>
+                </tr></thead>
                 <tbody>{this.state.search.messages.map(function (message, index) {
-                    return <SearchResult key={"result-" + index} message={message} selectedFields={this.state.selectedFields} />;
+                    return <SearchResult key={index} message={message} selectedFields={this.state.selectedFields} />;
                 }, this)}
                 </tbody>
             </table>
