@@ -86,7 +86,7 @@ var SearchSidebar = React.createClass({
         Found&nbsp;
             <span className="number-format" data-format="0,0">{this.state.search.total_results}</span>
         &nbsp;messages in&nbsp;
-            <span className="number-format" data-format="0,0">{this.state.search.time}</span>
+            <span className="number-format" data-format="0,0">{this.state.search.took_ms}</span>
         ms,&nbsp;
         searched in&nbsp;
 
