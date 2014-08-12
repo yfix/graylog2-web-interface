@@ -2,12 +2,10 @@
 
 var ColumnSorter = React.createClass({
     sortAscending: function () {
-        console.error("Ascending sort not implemented, yet");
-        console.error("Should really sort column " + this.props.fieldName + " on page " + this.props.page);
+        SearchResultStore.sort(this.props.fieldName, "asc", this.props.page);
     },
     sortDescending: function () {
-        console.error("Descending sort not implemented, yet");
-        console.error("Should really sort column " + this.props.fieldName + " on page " + this.props.page);
+        SearchResultStore.sort(this.props.fieldName, "desc", this.props.page);
     },
     render: function () {
         return (<span>
@@ -27,7 +25,7 @@ var SearchResult = React.createClass({
         console.error("Should display details of ", result);
     },
     render: function () {
-        var result = this.props.message.message;
+        var result = this.props.message;
         var fields = this.props.selectedFields;
         return <tr onClick={this.handleResultClicked.bind(this, result)}>{fields.map(function (field, index) {
             return <td key={"result-field-" + index}>{result[field]}</td>
@@ -51,16 +49,21 @@ var SearchResultHeader = React.createClass({
 
 var SearchResults = React.createClass({
     getInitialState: function () {
-        return {search: dummyData, page: 1, defaultFields: SelectedFieldsStore.defaultFields, selectedFields: SelectedFieldsStore.getFields()};
+        return {search: SearchResultStore.getData(), page: 1, defaultFields: SelectedFieldsStore.defaultFields, selectedFields: SelectedFieldsStore.getFields()};
     },
     componentDidMount: function() {
-        SelectedFieldsStore.addChangeListener(this._onChange);
+        SelectedFieldsStore.addChangeListener(this._onFieldSelectionChange);
+        SearchResultStore.addChangeListener(this._onResultChange);
     },
     componentWillUnmount: function() {
-        SelectedFieldsStore.removeChangeListener(this._onChange);
+        SelectedFieldsStore.removeChangeListener(this._onFieldSelectionChange);
+        SearchResultStore.removeChangeListener(this._onResultChange);
     },
-    _onChange: function() {
+    _onFieldSelectionChange: function() {
         this.setState({selectedFields: SelectedFieldsStore.getFields()});
+    },
+    _onResultChange: function() {
+        this.setState({search: SearchResultStore.getData()});
     },
     render: function () {
         var timestampHeader = <SearchResultHeader key="timestamp" title="TimeStamp" width="135px" fieldName="timestamp" search={this.state.search} page={this.state.page}/>;
@@ -89,51 +92,4 @@ var SearchResults = React.createClass({
             </table>
         </div>);
     }
-});
-
-var DebugButton = React.createClass({
-    // https://github.com/zeroclipboard/zeroclipboard
-    componentDidMount: function () {
-        this.copyDomNode = this.refs.copy.getDOMNode();
-        $(this.copyDomNode).tooltip({title: 'Copy Query', trigger: 'manual'});
-        // XXX: We need to make this manual and outside of react in order not to interfere with the evil clipboard
-        var clipBoardClient = new ZeroClipboard(this.copyDomNode);
-        clipBoardClient.on('mouseover', function (client, args) {
-            $(this).tooltip('show');
-        });
-        clipBoardClient.on('mouseout', function (client, args) {
-            $(this).tooltip('hide');
-        });
-        clipBoardClient.on('complete', function (client, args) {
-            $(this).tooltip('destroy');
-        });
-    },
-    render: function () {
-        var formattedQuery = JSON.stringify(JSON.parse(this.props.data.built_query), null, 4);
-        var header = <h2>
-            <i ref="copy" className="icon-copy" data-clipboard-target="build-query"></i>
-        &nbsp;
-        ElasticSearch Query
-        </h2>;
-        var body = <pre id="build-query">{formattedQuery}</pre>;
-        var modal = (
-            <BootstrapModal ref="modal" onCancel={this.closeModal} onConfirm={this.closeModal}>
-               {header}
-               {body}
-            </BootstrapModal>
-            );
-        return (<span>
-            <a onClick={this.openModal} className="btn btn-small" role="button">
-                <i className="icon-bug"></i>
-            </a>
-               {modal}
-        </span>);
-    },
-    closeModal: function () {
-        this.refs.modal.close();
-    },
-    openModal: function () {
-        this.refs.modal.open();
-    }
-
 });

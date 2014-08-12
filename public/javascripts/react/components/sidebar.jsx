@@ -34,16 +34,21 @@ var FieldSelector = React.createClass({
 
 var SearchSidebar = React.createClass({
     getInitialState: function () {
-        return {search: dummyData, selectedFields: SelectedFieldsStore.getFields()};
+        return {search: SearchResultStore.getData(), selectedFields: SelectedFieldsStore.getFields()};
     },
-    componentDidMount: function () {
-        SelectedFieldsStore.addChangeListener(this._onChange);
+    componentDidMount: function() {
+        SelectedFieldsStore.addChangeListener(this._onFieldSelectionChange);
+        SearchResultStore.addChangeListener(this._onResultChange);
     },
-    componentWillUnmount: function () {
-        SelectedFieldsStore.removeChangeListener(this._onChange);
+    componentWillUnmount: function() {
+        SelectedFieldsStore.removeChangeListener(this._onFieldSelectionChange);
+        SearchResultStore.removeChangeListener(this._onResultChange);
     },
-    _onChange: function () {
+    _onFieldSelectionChange: function() {
         this.setState({selectedFields: SelectedFieldsStore.getFields()});
+    },
+    _onResultChange: function() {
+        this.setState({search: SearchResultStore.getData()});
     },
     render: function () {
         var header = <div>

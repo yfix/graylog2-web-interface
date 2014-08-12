@@ -25,6 +25,7 @@ import controllers.AuthenticatedController;
 import org.graylog2.restclient.lib.APIException;
 import lib.SearchTools;
 import org.graylog2.restclient.lib.ApiClient;
+import org.graylog2.restclient.lib.Field;
 import org.graylog2.restclient.lib.timeranges.*;
 import org.graylog2.restclient.models.SavedSearch;
 import org.graylog2.restclient.models.SavedSearchService;
@@ -94,14 +95,21 @@ public class SearchApiController extends AuthenticatedController {
             searchResult = search.search();
 
             // TODO: Do it raw like this? Or create some nifty mapping?
+            // FIXME: Some fields obviously contain integers, but still are represented and formatted as doubles
             List<Map<String, Object>> messages = new ArrayList<>();
             for (MessageResult messageResult: searchResult.getMessages()) {
-                Map<String, Object> fields = messageResult.getFields();
+                Map<String, Object> fields = messageResult.getFilteredFields();
                 messages.add(fields);
             }
 
             Map<String, Object> result = Maps.newHashMap();
+            result.put("query", q);
+            result.put("built_query", searchResult.getBuiltQuery());
             result.put("took_ms", searchResult.getTookMs());
+            result.put("used_indices", searchResult.getUsedIndices());
+            result.put("error", searchResult.getError());
+            result.put("total_results", searchResult.getTotalResultCount());
+            result.put("fields", searchResult.getPageFields());
             result.put("messages", messages);
 
             return ok(new Gson().toJson(result)).as("application/json");

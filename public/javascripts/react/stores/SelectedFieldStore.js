@@ -6,26 +6,26 @@
 
     // Pattern taken from flux
     var SelectedFieldsStore = {
-        CHANGE_EVENT: 'SELECTED_FIELD_STORE_CHANGE_EVENT',
+        CHANGE_EVENT: 'CHANGE_EVENT',
         _fields: fields,
         defaultFields: defaultFields,
 
         _emitChange: function () {
-            this.emit(SelectedFieldsStore.CHANGE_EVENT);
+            this.emit(this.CHANGE_EVENT);
         },
 
         /**
          * @param {function} callback
          */
         addChangeListener: function (callback) {
-            this.on(SelectedFieldsStore.CHANGE_EVENT, callback);
+            this.on(this.CHANGE_EVENT, callback);
         },
 
         /**
          * @param {function} callback
          */
         removeChangeListener: function (callback) {
-            this.removeListener(SelectedFieldsStore.CHANGE_EVENT, callback);
+            this.removeListener(this.CHANGE_EVENT, callback);
         },
 
         getFields: function () {
