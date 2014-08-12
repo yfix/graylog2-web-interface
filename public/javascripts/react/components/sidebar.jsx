@@ -13,7 +13,7 @@ var FieldSelector = React.createClass({
                 return fieldToToggle !== field;
             });
         }
-        SelectedFieldsStore.setFields(selectedFields.sort());
+        SelectedFieldsStore.setFields(selectedFields);
     },
     render: function () {
         var selectedFields = SelectedFieldsStore.getFields();

@@ -98,7 +98,8 @@ public class SearchApiController extends AuthenticatedController {
             // FIXME: Some fields obviously contain integers, but still are represented and formatted as doubles
             List<Map<String, Object>> messages = new ArrayList<>();
             for (MessageResult messageResult: searchResult.getMessages()) {
-                Map<String, Object> fields = messageResult.getFilteredFields();
+                Map<String, Object> fields = Maps.newHashMap(messageResult.getFormattedFields());
+                fields.put("timestamp",  messageResult.getFields().get("timestamp"));
                 messages.add(fields);
             }
 

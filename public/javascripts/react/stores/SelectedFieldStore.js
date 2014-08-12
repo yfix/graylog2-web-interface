@@ -33,7 +33,16 @@
         },
 
         setFields: function (fields) {
-            this._fields = fields;
+            // we need to bring this into the right order:
+            // - default fields come first
+            // - other fields are sorted in lexical order
+            var selectedDefaultFields = this.defaultFields.filter(function(defaultField) {
+                return fields.indexOf(defaultField) !== -1;
+            });
+            var sortedFields = fields.filter(function(field) {
+                return selectedDefaultFields.indexOf(field) === -1;
+            }).sort();
+            this._fields = selectedDefaultFields.concat(sortedFields);
             this._emitChange();
         }
     };
