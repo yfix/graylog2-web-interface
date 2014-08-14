@@ -65,6 +65,7 @@ var SearchResults = React.createClass({
     _onResultChange: function() {
         this.setState({search: SearchResultStore.getData()});
     },
+    // TODO: Handle empty result set
     render: function () {
         var timestampHeader = <SearchResultHeader key="timestamp" title="TimeStamp" width="135px" fieldName="timestamp" search={this.state.search} page={this.state.page}/>;
         var sourceHeader = this.state.selectedFields.indexOf("source") === -1 ? null : <SearchResultHeader key="source" title="Source" width="180px" fieldName="source" search={this.state.search} page={this.state.page}/>;

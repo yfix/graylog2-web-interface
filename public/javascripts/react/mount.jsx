@@ -12,7 +12,7 @@ $(document).ready(function () {
     var searachSidebarMountNode = document.getElementById('react-search-sidebar');
     if (searachSidebarMountNode) React.renderComponent(<SearchSidebar />, searachSidebarMountNode);
 
-    var queryButton = document.getElementById('react-query-button');
-    if (queryButton) React.renderComponent(<SearchButton />, queryButton);
+    var searchContainer = document.getElementById('react-query');
+    if (searchContainer) React.renderComponent(<QueryContainer />, searchContainer);
 
 });

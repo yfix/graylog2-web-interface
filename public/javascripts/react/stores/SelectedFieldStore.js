@@ -2,7 +2,7 @@
     'use strict';
 
     var defaultFields = ['timestamp', 'source', 'message'];
-    var fields = defaultFields.concat(['action']); // FIXME: This additional field just for testing
+    var fields = defaultFields.slice(); // copy
 
     // Pattern taken from flux
     var SelectedFieldsStore = {

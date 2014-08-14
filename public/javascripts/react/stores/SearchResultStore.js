@@ -6,6 +6,12 @@
         CHANGE_EVENT: 'CHANGE_EVENT',
         BASE_URL: '/a/search',
 
+        query: {
+            q: "*",
+            relative: 300,
+            page: 1
+        },
+
         _emitChange: function () {
             this.emit(this.CHANGE_EVENT);
         },
@@ -29,8 +35,7 @@
         },
 
         setData: function (data) {
-            // FIXME
-            console.debug(data);
+//            console.debug(data);
             this._data = data;
             this._emitChange();
         },
@@ -44,13 +49,12 @@
             };
         },
 
-        // TODO: For now we will just sort on the client side
-        // Should be possible on server at least as an option as well
+        // TODO
         sort: function(field, direction, page) {
             console.error("Sort not implemented, yet");
             console.error("Should sort column " + fiel + " on page " + page + " in " + direction + " direction");
         },
-        search: function(q) {
+        search: function() {
             var postProcessData = function (data) {
                 data.fields = data.fields.map(function(field) {
                     return field.name;
@@ -62,12 +66,7 @@
                 this.setData(data);
             }.bind(this);
 
-            var query = {
-                q: "*",
-                relative: 100
-            };
-
-            $.getJSON(this.BASE_URL, query, successCallback);
+            $.getJSON(this.BASE_URL, this.query, successCallback);
         }
     };
     util.mergeInto(SearchResultStore, EventEmitter.prototype);
