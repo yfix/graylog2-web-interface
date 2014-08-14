@@ -21,20 +21,17 @@ package controllers.api;
 
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
-import com.google.inject.Inject;
 import controllers.AuthenticatedController;
 import org.graylog2.restclient.lib.APIException;
 import org.graylog2.restclient.lib.ApiClient;
 import org.graylog2.restclient.lib.Tools;
-import org.graylog2.restclient.models.ClusterService;
-import org.graylog2.restclient.models.Input;
-import org.graylog2.restclient.models.Node;
-import org.graylog2.restclient.models.NodeService;
+import org.graylog2.restclient.models.*;
 import org.graylog2.restclient.models.api.results.MessageResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Result;
 
+import javax.inject.Inject;
 import java.io.IOException;
 import java.util.Map;
 
@@ -44,11 +41,16 @@ import java.util.Map;
 public class InputsApiController extends AuthenticatedController {
     private static final Logger log = LoggerFactory.getLogger(InputsApiController.class);
 
-    @Inject
-    private NodeService nodeService;
+    private final NodeService nodeService;
+    private final ClusterService clusterService;
+    private final InputService inputService;
 
     @Inject
-    private ClusterService clusterService;
+    public InputsApiController(NodeService nodeService, ClusterService clusterService, InputService inputService) {
+        this.nodeService = nodeService;
+        this.clusterService = clusterService;
+        this.inputService = inputService;
+    }
 
     public Result io(String nodeId, String inputId) {
         try {
@@ -63,7 +65,7 @@ public class InputsApiController extends AuthenticatedController {
             result.put("rx", Tools.byteToHuman(ioStats.readBytes));
             result.put("tx", Tools.byteToHuman(ioStats.writtenBytes));
 
-            return ok(new Gson().toJson(result)).as("application/json");
+            return ok(json(result)).as("application/json");
         } catch (IOException e) {
             return internalServerError("io exception");
         } catch (APIException e) {

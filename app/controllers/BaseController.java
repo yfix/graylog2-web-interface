@@ -19,6 +19,7 @@
 package controllers;
 
 import com.google.common.collect.Maps;
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import org.graylog2.restclient.lib.ApiClient;
 import play.mvc.Controller;
@@ -49,4 +50,7 @@ public class BaseController extends Controller {
         return result;
     }
 
+    public String json(Object obj) {
+        return new Gson().toJson(obj);
+    }
 }
