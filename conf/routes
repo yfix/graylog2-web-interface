@@ -237,6 +237,11 @@ GET         /a/system/indices/failures/dynatable                                
 # API: Extractors
 POST        /a/system/inputs/:input_id/extractors/order                              @controllers.api.ExtractorsApiController.order(input_id: String)
 
+# API: Nodes and Radios
+GET         /a/system/nodes                                                          @controllers.api.NodesApiController.list()
+GET         /a/system/nodes/radios                                                   @controllers.api.NodesApiController.radios()
+GET         /a/system/nodes/servers                                                  @controllers.api.NodesApiController.servers()
+
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                                                            controllers.Assets.at(path="/public", file)
 

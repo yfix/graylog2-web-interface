@@ -18,6 +18,8 @@
  */
 package controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.inject.Inject;
@@ -50,7 +52,8 @@ public class BaseController extends Controller {
         return result;
     }
 
-    public String json(Object obj) {
-        return new Gson().toJson(obj);
+    public String json(Object obj) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.writeValueAsString(obj);
     }
 }
