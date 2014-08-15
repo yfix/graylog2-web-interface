@@ -200,7 +200,7 @@ GET         /a/system/inputs/global/:input_id/io                                
 GET         /a/system/inputs/:node_id/:input_id/io                                   @controllers.api.InputsApiController.io(node_id: String, input_id: String)
 GET         /a/system/inputs/:node_id/:input_id/connections                          @controllers.api.InputsApiController.connections(node_id: String, input_id: String)
 GET         /a/system/inputs/types                                                   @controllers.api.InputTypesApiController.list()
-GET         /a/system/inputs/:node_id/types/:input_type                              @controllers.api.InputTypesApiController.get(node_id: String, input_type: String)
+GET         /a/system/inputs/:node_id/type/:input_type                               @controllers.api.InputTypesApiController.get(node_id: String, input_type: String)
 
 # API: Messages
 GET         /a/messages/:index/:id                                                   @controllers.MessagesController.single(index: String, id: String, filtered: Boolean ?= false)
