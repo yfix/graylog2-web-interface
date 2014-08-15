@@ -6,7 +6,7 @@ var NewInputButton = React.createClass({
     },
     componentDidMount: function () {
         InputsStore.addChangeListener(this._onInputTypesChanged);
-        InputsStore.loadTypes();
+        InputsStore.init();
     },
     componentWillUnmount: function () {
         InputsStore.removeChangeListener(this._onInputTypesChanged);
@@ -29,8 +29,8 @@ var NewInputButton = React.createClass({
             <div className="row-fluid input-new">
                 <select onChange={this._onChange}>
                     {
-                        inputTypes.map(function (inputType) {
-                            return <option value={inputType.type}>{inputType.name}</option>;
+                        inputTypes.map(function (inputType, index) {
+                            return <option key={index} value={inputType.type}>{inputType.name}</option>;
                         })
                         }
                 </select>

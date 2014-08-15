@@ -7,6 +7,7 @@
         LIST_TYPES_URL: BASE_URL + '/types',
         GET_TYPES_URL: BASE_URL, // /a/system/inputs/:node_id/type/:input_type
         _types: {},
+        initialized: false,
 
         _emitChange: function () {
             this.emit(this.CHANGE_EVENT);
@@ -42,7 +43,9 @@
             return this.GET_TYPES_URL + "/" + data.nodeId + "/type/" + data.inputType;
         },
 
-        loadTypes: function() {
+        init: function() {
+            if (this.initialized) return;
+            this.initialized = true;
             var postProcessData = function (data) {
                 data = Object.keys(data).map(function(type) {
                     return data[type];
@@ -56,6 +59,7 @@
                 data = postProcessData(data);
                 this.setTypes(data);
             }.bind(this);
+            // TODO: handle failure and reset initialized flag
             $.getJSON(this.LIST_TYPES_URL, successCallback);
         }
 
