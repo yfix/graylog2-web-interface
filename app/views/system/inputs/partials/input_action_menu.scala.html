@@ -11,6 +11,7 @@
         <span class="caret"></span>
     </a>
     <ul class="dropdown-menu">
+        <li react-edit-input data-node-id="@targetNode.getNodeId" data-input-type="@input.getType"><a href="#">Edit</a></li>
         @if(!targetNode.isInstanceOf[Radio] && isPermitted(INPUTS_EDIT, input.getId)) {
             <li><a href="@routes.ExtractorsController.manage(targetNode.getNodeId, input.getId)">Manage extractors</a></li>
         }
@@ -28,3 +29,4 @@
         }
     </ul>
 </div>
+<div id="react-edit-input-modal"></div>

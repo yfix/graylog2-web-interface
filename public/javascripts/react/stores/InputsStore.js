@@ -3,29 +3,9 @@
 
     var BASE_URL = '/a/system/inputs';
     var InputsStore = {
-        CHANGE_EVENT: 'CHANGE_EVENT',
         LIST_TYPES_URL: BASE_URL + '/types',
-        GET_TYPES_URL: BASE_URL, // /a/system/inputs/:node_id/type/:input_type
         _types: {},
         initialized: false,
-
-        _emitChange: function () {
-            this.emit(this.CHANGE_EVENT);
-        },
-
-        /**
-         * @param {function} callback
-         */
-        addChangeListener: function (callback) {
-            this.on(this.CHANGE_EVENT, callback);
-        },
-
-        /**
-         * @param {function} callback
-         */
-        removeChangeListener: function (callback) {
-            this.removeListener(this.CHANGE_EVENT, callback);
-        },
 
         getTypes: function () {
             return this._types;
@@ -36,19 +16,16 @@
             this._emitChange();
         },
 
-        urlForData: function(data) {
-            if (!data.nodeId || !data.inputType) {
-                throw new Error("Data needs nodeId and inputType");
-            }
-            return this.GET_TYPES_URL + "/" + data.nodeId + "/type/" + data.inputType;
-        },
-
         init: function() {
             if (this.initialized) return;
             this.initialized = true;
             var postProcessData = function (data) {
+                // turn map into array
                 data = Object.keys(data).map(function(type) {
-                    return data[type];
+                    return {
+                        type: type,
+                        name: data[type]
+                    };
                 });
                 data = data.sort(function(t1, t2) {
                     return t1.name.localeCompare(t2.name);
@@ -59,12 +36,18 @@
                 data = postProcessData(data);
                 this.setTypes(data);
             }.bind(this);
-            // TODO: handle failure and reset initialized flag
-            $.getJSON(this.LIST_TYPES_URL, successCallback);
+            var failCallback = function ( jqXHR, textStatus, errorThrown) {
+                this.initialized = false;
+                console.error("Loading of input types failed with status: " + textStatus);
+                console.error("Error", errorThrown);
+                // TODO: find a better way to signal error
+                alert("Could not retrieve list of input types from server - try reloading the page");
+            }.bind(this);
+            $.getJSON(this.LIST_TYPES_URL, successCallback).fail(failCallback);
         }
 
     };
-    util.mergeInto(InputsStore, EventEmitter.prototype);
+    util.mergeInto(InputsStore, AbstractEventSendingStore);
 
     exports.InputsStore = InputsStore;
 

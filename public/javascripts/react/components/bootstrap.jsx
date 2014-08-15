@@ -23,16 +23,16 @@ var BootstrapModal = React.createClass({
         var confirmButton = null;
         var cancelButton = null;
 
-        if (this.props.confirm) {
+        if (this.props.confirm && this.props.onConfirm) {
             confirmButton = (
-                <a role="button" className="btn" onClick={this.handleConfirm}>
+                <a role="button" className="btn" onClick={this.props.onConfirm}>
                       {this.props.confirm}
                 </a>
                 );
         }
-        if (this.props.cancel) {
+        if (this.props.cancel && this.props.onCancel) {
             cancelButton = (
-                <a role="button" className="btn btn-primary" onClick={this.handleCancel}>
+                <a role="button" className="btn btn-primary" onClick={this.props.onCancel}>
                       {this.props.cancel}
                 </a>
                 );
@@ -58,15 +58,5 @@ var BootstrapModal = React.createClass({
                 </div>
             </div>
             );
-    },
-    handleCancel: function () {
-        if (this.props.onCancel) {
-            this.props.onCancel();
-        }
-    },
-    handleConfirm: function () {
-        if (this.props.onConfirm) {
-            this.props.onConfirm();
-        }
     }
 });

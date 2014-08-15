@@ -21,18 +21,18 @@ var NewInputButton = React.createClass({
         this.setState({type: type});
     },
     _onClick: function (event) {
+        // TODO: needs to display react based modal
         $('[data-inputtype="' + this.state.type + '"]').modal();
     },
     render: function () {
         var inputTypes = this.state.inputTypes;
+        var renderAsOption = function (inputType, index) {
+            return <option key={index} value={inputType.type}>{inputType.name}</option>;
+        };
         return (
             <div className="row-fluid input-new">
                 <select onChange={this._onChange}>
-                    {
-                        inputTypes.map(function (inputType, index) {
-                            return <option key={index} value={inputType.type}>{inputType.name}</option>;
-                        })
-                        }
+                    {inputTypes.map(renderAsOption)}
                 </select>
             &nbsp;
                 <button id="configure-input" onClick={this._onClick} className="btn btn-success">Launch new input</button>
