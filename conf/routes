@@ -82,6 +82,9 @@ POST        /system/inputs/:input_id/terminate                                  
 POST        /system/inputs/:node_id/:input_id/staticfields                           @controllers.InputsController.addStaticField(node_id: String, input_id: String)
 POST        /system/inputs/:input_id/staticfields                                    @controllers.InputsController.addStaticFieldGlobal(input_id: String)
 GET         /system/inputs/:node_id/:input_id/staticfields/:key/delete               @controllers.InputsController.removeStaticField(node_id: String, input_id: String, key: String)
+GET         /system/bundes                                                           @controllers.BundlesController.index()
+GET         /system/bundes/export                                                    @controllers.BundlesController.exportForm()
+POST        /system/bundes/export                                                    @controllers.BundlesController.export()
 
 # Outputs
 GET         /system/outputs                                                          @controllers.OutputsController.index()
@@ -170,7 +173,6 @@ GET         /a/search/fieldterms                                                
 GET         /a/search/fieldhistogram                                                 @controllers.api.SearchApiController.fieldHistogram(q ?= "", field ?= "", rangetype ?= "", relative:Integer ?= -1, from ?= "", to ?= "", keyword ?= "", interval ?= "", valueType ?= "", streamId ?= "")
 
 # API: Message counts and histograms
-GET         /a/messagecounts/histogram                                               @controllers.MessageCountsController.histogram(timerange ?= "")
 GET         /a/messagecounts/total                                                   @controllers.MessageCountsController.total()
 
 # API: Message analyzing
@@ -192,6 +194,8 @@ GET         /a/system/radio/:radio_id/heap                                      
 GET         /a/system/internallogs/:node_id                                          @controllers.api.SystemApiController.internalLogsOfNode(node_id: String)
 GET         /a/system/internallogs/:node_id/metrics                                  @controllers.api.SystemApiController.internalLogMetricsOfNode(node_id: String)
 GET         /a/system/users/:username                                                @controllers.UsersController.isUniqueUsername(username: String)
+GET         /a/system/user/:username                                                 @controllers.UsersController.loadUser(username: String)
+PUT         /a/system/user/:username/preferences                                     @controllers.UsersController.saveUserPreferences(username: String)
 
 # API: Inputs
 GET         /a/system/inputs/:node_id/:input_id/recent_message                       @controllers.api.InputsApiController.recentMessage(node_id: String, input_id: String, filtered: Boolean ?= false)
@@ -235,6 +239,11 @@ GET         /a/system/indices/failures/dynatable                                
 
 # API: Extractors
 POST        /a/system/inputs/:input_id/extractors/order                              @controllers.api.ExtractorsApiController.order(input_id: String)
+
+# API: Bundles
+GET         /a/system/bundles                                                        @controllers.api.BundlesApiController.index()
+POST        /a/system/bundles                                                        @controllers.api.BundlesApiController.create()
+POST        /a/system/bundles/:bundle_id/apply                                       @controllers.api.BundlesApiController.apply(bundle_id: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file                                                            controllers.Assets.at(path="/public", file)

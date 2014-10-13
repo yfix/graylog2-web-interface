@@ -1,7 +1,7 @@
 @(currentUser: org.graylog2.restclient.models.User)
 
 @main("Search", null, "", currentUser) {
+    @views.html.system.users.scripts()
 
-    Need help with the search syntax? Take a look at our @views.html.partials.search_query_documentation().
-
+    <div id="react-card-list"></div>
 }

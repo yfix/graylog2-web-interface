@@ -1,25 +1,9 @@
-focussed = true;
-
-$(window).blur(function(){
-    $(".focuslimit").css("text-decoration", "line-through");
-    focussed = false;
-});
-$(window).focus(function(){
-    $(".focuslimit").css("text-decoration", "none");
-    focussed = true;
-});
-
-
 $(document).ready(function() {
     // Total event counts;
     (function updateTotalEvents() {
         if ($(".total-events").length > 0) {
             var interval = 2500;
-
-            if(!focussed) {
-                setTimeout(updateTotalEvents, interval);
-                return;
-            }
+            if (!assertUpdateEnabled(updateTotalEvents)) return;
 
             $.ajax({
                 url: appPrefixed('/a/messagecounts/total'),
@@ -41,11 +25,7 @@ $(document).ready(function() {
     (function updateTotalThroughput() {
         if ($(".total-throughput").length > 0) {
             var interval = 1000;
-
-            if(!focussed) {
-                setTimeout(updateTotalThroughput, interval);
-                return;
-            }
+            if (!assertUpdateEnabled(updateTotalThroughput)) return;
 
             $.ajax({
                 url: appPrefixed('/a/system/throughput'),
@@ -74,11 +54,7 @@ $(document).ready(function() {
     (function updateNodeThroughput() {
         if ($(".node-throughput").length > 0) {
             var interval = 1000;
-
-            if(!focussed) {
-                setTimeout(updateNodeThroughput, interval);
-                return;
-            }
+            if (!assertUpdateEnabled(updateNodeThroughput)) return;
 
             $(".node-throughput").each(function(i) {
                 var nodeType = $(this).attr("data-node-type");
@@ -116,11 +92,7 @@ $(document).ready(function() {
     (function updateNodeHeapUsage() {
         if ($(".node-heap-usage").length > 0) {
             var interval = 1000;
-
-            if(!focussed) {
-                setTimeout(updateNodeHeapUsage, interval);
-                return;
-            }
+            if (!assertUpdateEnabled(updateNodeHeapUsage)) return;
 
             $(".node-heap-usage").each(function(i) {
                 var nodeType = $(this).attr("data-node-type");
@@ -161,11 +133,8 @@ $(document).ready(function() {
     // IO of input.
     (function updateInputIO() {
         var interval = 1000;
+        if (!assertUpdateEnabled(updateInputIO)) return;
 
-        if(!focussed) {
-            setTimeout(updateInputIO, interval);
-            return;
-        }
         $(".global-input-io").each(function() {
             var inputId = $(this).attr("data-input-id");
             var io = $(this);
@@ -249,11 +218,7 @@ $(document).ready(function() {
     // IO of global input.
     (function updateGlobalInputIO() {
         var interval = 1000;
-
-        if(!focussed) {
-            setTimeout(updateGlobalInputIO, interval);
-            return;
-        }
+        if (!assertUpdateEnabled(updateGlobalInputIO)) return;
 
         var globalInputs = $(".global-input-connections").map(
             function(x) {
@@ -297,10 +262,7 @@ $(document).ready(function() {
     (function updateInputConnections() {
         var interval = 1000;
 
-        if(!focussed) {
-            setTimeout(updateInputConnections, interval);
-            return;
-        }
+        if (!assertUpdateEnabled(updateInputConnections)) return;
 
         $(".input-connections").each(function() {
             var inputId = $(this).attr("data-input-id");
@@ -323,11 +285,7 @@ $(document).ready(function() {
     // Connection counts of global input.
     (function updateGlobalInputConnections() {
         var interval = 1000;
-
-        if(!focussed) {
-            setTimeout(updateGlobalInputConnections, interval);
-            return;
-        }
+        if (!assertUpdateEnabled(updateGlobalInputConnections)) return;
 
         var globalInputs = $(".global-input-connections").map(
             function(x) {
@@ -357,10 +315,7 @@ $(document).ready(function() {
     // Notification count badge.
     (function updateNotificationCount() {
         var interval = 10000;
-        if(!focussed) {
-            setTimeout(updateNotificationCount, interval);
-            return;
-        }
+        if (!assertUpdateEnabled(updateNotificationCount)) return;
 
         $.ajax({
             url: appPrefixed('/a/system/notifications'),
@@ -408,11 +363,7 @@ $(document).ready(function() {
     (function updateTotalLogs() {
         if ($(".total-logs").length > 0) {
             var interval = 1000;
-
-            if(!focussed) {
-                setTimeout(updateTotalLogs, interval);
-                return;
-            }
+            if (!assertUpdateEnabled(updateTotalLogs)) return;
 
             $(".total-logs").each(function() {
                 var nodeId = $(this).attr("data-node-id");
@@ -434,11 +385,7 @@ $(document).ready(function() {
     (function updateLogLevelMetrics() {
         if ($(".loglevel-metrics").length > 0) {
             var interval = 1000;
-
-            if(!focussed) {
-                setTimeout(updateLogLevelMetrics, interval);
-                return;
-            }
+            if (!assertUpdateEnabled(updateLogLevelMetrics)) return;
 
             $(".loglevel-metrics:visible").each(function() {
                 var nodeId = $(this).attr("data-node-id");

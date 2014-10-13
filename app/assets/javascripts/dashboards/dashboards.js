@@ -131,17 +131,8 @@ $(document).ready(function() {
 
     // Periodically poll every widget.
     (function updateDashboardWidgets() {
-        // do not make expensive calls to server when window does not have focus
-        function assertFocus(callback) {
-            var recheckInterval = 1000;
 
-            if(!focussed) {
-                setTimeout(callback, recheckInterval);
-            }
-            return focussed;
-        }
-
-        if (!assertFocus(updateDashboardWidgets)) return;
+        if (!assertUpdateEnabled(updateDashboardWidgets)) return;
 
         $(".dashboard .widget[data-widget-type]").each(function() {
             var widget = $(this);
@@ -150,7 +141,7 @@ $(document).ready(function() {
             var cacheTimeInSecs = parseInt(widget.attr("data-cache-time") || 0);
 
             function reloadWidget() {
-                if (!assertFocus(reloadWidget)) return;
+                if (!assertUpdateEnabled(reloadWidget)) return;
 
                 $(".reloading", widget).show();
 
@@ -194,6 +185,29 @@ $(document).ready(function() {
         $(this).closest("h1").hide();
         $(".dashboard-description").hide();
         $("form.edit-dashboard-form").show();
+    });
+
+    function displayUpdateUnfocussed(updateUnfocussed) {
+        if (updateUnfocussed) {
+            $(".update-onfocussed-on").hide();
+            $(".update-onfocussed-off").show();
+        } else {
+            $(".update-onfocussed-on").show();
+            $(".update-onfocussed-off").hide();
+        }
+    }
+    displayUpdateUnfocussed(userPreferences && userPreferences.updateUnfocussed);
+
+    $(".update-onfocussed-on").on("click", function() {
+        displayUpdateUnfocussed(true);
+        setUpdateUnfocussedMode(true);
+        alert("Window will be updated even when unfocussed");
+    });
+
+    $(".update-onfocussed-off").on("click", function() {
+        displayUpdateUnfocussed(false);
+        setUpdateUnfocussedMode(false);
+        alert("Window will no longer be updated when unfocussed");
     });
 
     $(".unlock-dashboard-widgets").on("click", function() {

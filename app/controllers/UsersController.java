@@ -18,10 +18,13 @@
  */
 package controllers;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.gson.Gson;
 import com.google.inject.Inject;
 import lib.*;
 import org.graylog2.restclient.lib.*;
@@ -40,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.Form;
+import play.mvc.Http;
 import play.mvc.Result;
 import views.helpers.Permissions;
 import views.html.system.users.edit;
@@ -49,6 +53,7 @@ import views.html.system.users.show;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -140,6 +145,57 @@ public class UsersController extends AuthenticatedController {
             String message = "Could not fetch streams. We expected HTTP 200, but got a HTTP " + e.getHttpCode() + ".";
             return status(504, views.html.errors.error.render(message, e, request()));
         }
+    }
+
+    public Result loadUser(String username) {
+        User user = userService.load(username);
+        if (user != null) {
+            Map<String, Object> result = Maps.newHashMap();
+            result.put("preferences", initDefaultPreferences(user.getPreferences()));
+            // TODO: there is more than preferences
+            return ok(new Gson().toJson(result)).as("application/json");
+        } else {
+            return notFound();
+        }
+    }
+
+    public Result saveUserPreferences(String username) {
+        final String json = request().body().asJson().toString();
+        Map<String, Object> preferences = new Gson().fromJson(json, Map.class);
+        if (userService.savePreferences(username, normalizePreferences(preferences))) {
+            return ok();
+        } else {
+            // TODO: Really?
+            return notFound();
+        }
+    }
+
+    private Map<String, Object> initDefaultPreferences(Map<String, Object> preferences) {
+        Map<String, Object> effectivePreferences = Maps.newHashMap();
+        // TODO: Move defaults into a static map once we at least have a second preference
+        effectivePreferences.put("updateUnfocussed", false);
+        if (preferences != null) {
+            effectivePreferences.putAll(preferences);
+        }
+        return effectivePreferences;
+    }
+
+    private Map<String, Object> normalizePreferences(Map<String, Object> preferences) {
+        Map<String, Object> normalizedPreferences = Maps.newHashMap();
+        // TODO: Move types into a static map once we at least have a second preference
+        for (Map.Entry<String, Object> preference : preferences.entrySet()) {
+            if (preference.getKey().equals("updateUnfocussed")) {
+                final Object value = preference.getValue();
+                final Object normalizedValue;
+                if (value instanceof Boolean) {
+                    normalizedValue = value;
+                } else {
+                    normalizedValue = Boolean.valueOf(value.toString());
+                }
+                normalizedPreferences.put(preference.getKey(), normalizedValue);
+            }
+        }
+        return normalizedPreferences;
     }
 
     public Result create() {

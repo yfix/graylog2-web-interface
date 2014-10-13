@@ -3,7 +3,7 @@ package views.helpers;
 import org.graylog2.restclient.models.Stream;
 import org.graylog2.restclient.models.alerts.AlertCondition;
 import play.api.mvc.Call;
-import play.api.templates.Html;
+import play.twirl.api.Html;
 
 public abstract class AlertConditionDecorator {
     private final AlertCondition alertCondition;
@@ -44,11 +44,11 @@ public abstract class AlertConditionDecorator {
     }
 
     public int getGrace() {
-        return (int) ((Double) getParameter("grace", 0.0)).longValue();
+        return (int) ((Number) getParameter("grace", 0.0)).longValue();
     }
 
     public int getBacklog() {
-        return (int) ((Double) getParameter("backlog", 0.0)).longValue();
+        return (int) ((Number) getParameter("backlog", 0.0)).longValue();
     }
 
     public abstract Call getFormAction(String streamId);

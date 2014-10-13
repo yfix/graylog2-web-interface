@@ -9,6 +9,9 @@
 @main(dashboard.getTitle, null, "", currentUser, false) {
 
     <div class="pull-right dashboard-controls">
+        <i class="icon icon-refresh update-onfocussed-on" title="Update unfocussed" style="color: #B0B0B0;"></i>
+        <i class="icon icon-refresh update-onfocussed-off" title="Do not update when unfocussed" style="display: none; color: #000000"></i>
+            &nbsp;
         @if(isPermitted(DASHBOARDS_EDIT, dashboard.getId)) {
         <i class="icon icon-lock unlock-dashboard-widgets" title="Unlock widget positions"></i>
         <i class="icon icon-unlock lock-dashboard-widgets" title="Lock widget positions" style="display: none;"></i>
@@ -56,7 +59,11 @@
                 <ul>
                 @for(widget <- dashboard.getWidgets.values()) {
                     <li data-row="@widget.getRow" data-col="@widget.getCol" data-sizex="@widget.getWidth" data-sizey="@widget.getHeight">
-                        <div class="widget" data-cache-time="@widget.getCacheTime" data-widget-type="@widget.getType.toString.toLowerCase" data-dashboard-id="@widget.getDashboard.getId" data-widget-id="@widget.getId">
+                        <div class="widget" data-cache-time="@widget.getCacheTime"
+                                            data-widget-type="@widget.getType.toString.toLowerCase"
+                                            data-dashboard-id="@widget.getDashboard.getId"
+                                            data-widget-id="@widget.getId"
+                                            data-fixed-time-axis="@widget.hasFixedTimeAxis">
 
                             <div class="pull-left widget-top controls only-unlocked">
                                 <a href="#" class="remove-widget"><i class="icon icon-remove"></i></a>

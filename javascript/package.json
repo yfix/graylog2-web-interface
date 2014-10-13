@@ -1,0 +1,54 @@
+{
+  "name": "graylog2-web-interface",
+  "version": "0.23.0",
+  "description": "Graylog2 Web Interface",
+  "author": "torch",
+  "license": "GPL",
+  "scripts": {
+    "build": "./node_modules/.bin/gulp deploy-prod",
+    "test": "./node_modules/.bin/jest"
+  },
+  "jest": {
+    "scriptPreprocessor": "<rootDir>/jest-preprocessor.js",
+    "unmockedModulePathPatterns": [
+      "<rootDir>/node_modules/react/",
+      "<rootDir>/node_modules/joi/"
+    ],
+    "testPathIgnorePatterns": [
+      "node_modules"
+    ],
+    "moduleFileExtensions": [
+      "js",
+      "jsx"
+    ]
+  },
+  "dependencies": {
+    "joi": "^4.6.2",
+    "react": "^0.11.2"
+  },
+  "devDependencies": {
+    "browserify": "*",
+    "gulp": "*",
+    "gulp-compile-handlebars": "*",
+    "gulp-concat": "*",
+    "gulp-debug": "*",
+    "gulp-jest": "*",
+    "gulp-jshint": "*",
+    "gulp-livereload": "*",
+    "gulp-react": "*",
+    "gulp-rename": "*",
+    "gulp-rev": "*",
+    "gulp-rimraf": "*",
+    "gulp-uglify": "*",
+    "gulp-util": "*",
+    "jest-cli": "*",
+    "jquery": "*",
+    "jshint-stylish": "*",
+    "react-tools": "*",
+    "reactify": "*",
+    "rimraf": "*",
+    "run-sequence": "*",
+    "vinyl-source-stream": "*",
+    "watchify": "*"
+  }
+}
